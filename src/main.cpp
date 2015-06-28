@@ -1,5 +1,6 @@
 #include "ofMain.h"
 #include "ofApp.h"
+#include "ofMotionDetect.h"
 
 //orega kaeta yeah!!!!!
 //========================================================================

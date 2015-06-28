@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>1966B936-EF34-4DB8-BFFF-5C97E3D2A98C</string>
+	<key>IDESourceControlProjectName</key>
+	<string>IRtrackingWithOSC</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>8EB4851A76F08E3DAB9F230421DB47C45BC4EE4B</key>
+		<string>http://github.com/hawkshaw/bapa_camera.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>IRtrackingWithOSC.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>8EB4851A76F08E3DAB9F230421DB47C45BC4EE4B</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>http://github.com/hawkshaw/bapa_camera.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>8EB4851A76F08E3DAB9F230421DB47C45BC4EE4B</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>8EB4851A76F08E3DAB9F230421DB47C45BC4EE4B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>IRtrackingWithOSC</string>
+		</dict>
+	</array>
+</dict>
+</plist>

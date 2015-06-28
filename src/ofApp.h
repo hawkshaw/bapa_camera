@@ -5,6 +5,7 @@
 #include "ofxOsc.h"
 #include "ofxOpenCv.h"
 #include "ofxGUI.h"
+#include "ofMotionDetect.h"
 
 #define HOST "localhost"
 #define PORT 12345
@@ -19,10 +20,10 @@ public:
     void update();
     void draw();
     void keyPressed(int key);
-    
     float threshold;
     ofxCv::ContourFinder contourFinder;
     bool showLabels;
+    void motion_detect_2();
     
 #ifdef _USE_LIVE_VIDEO
 		  ofVideoGrabber 		vidGrabber;
