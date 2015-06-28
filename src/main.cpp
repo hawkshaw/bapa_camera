@@ -1,6 +1,7 @@
 #include "ofMain.h"
 #include "ofApp.h"
 
+//orega kaeta yeah!!!!!
 //========================================================================
 int main( ){
 	ofSetupOpenGL(1280,720,OF_WINDOW);			// <-------- setup the GL context
