@@ -10,6 +10,8 @@
 #define HOST "localhost"
 #define PORT 12345
 
+#define SEND_METHOD 2
+
 #define MAXSENDSIZE 400
 
 //#define _USE_LIVE_VIDEO
@@ -24,6 +26,7 @@ public:
     ofxCv::ContourFinder contourFinder;
     bool showLabels;
     void motion_detect_2();
+    void motion_detect_01();
     
 #ifdef _USE_LIVE_VIDEO
 		  ofVideoGrabber 		vidGrabber;
