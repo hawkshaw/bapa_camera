@@ -10,7 +10,7 @@
 #define HOST "localhost"
 #define PORT 12345
 
-#define SEND_METHOD 2
+#define SEND_METHOD 3
 
 #define MAXSENDSIZE 400
 
@@ -25,6 +25,7 @@ public:
     float threshold;
     ofxCv::ContourFinder contourFinder;
     bool showLabels;
+    void motion_detect_3();
     void motion_detect_2();
     void motion_detect_01();
     

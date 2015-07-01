@@ -4,9 +4,132 @@
 using namespace ofxCv;
 using namespace cv;
 
+
+//motion0
 #define MINSPEED 3
 #define AREASIZEX 20 //近傍の点を検索する範囲
 #define AREASIZEY 5
+
+//motion3
+#define MOTION_VOTE_BIN_NUM2 40 //検出する最大スピード*2
+#define MOTION_VOTE_BIN_NUM 20 //検出する最大スピード
+#define MOTION_VOTE_GAUSS 5
+#define MOTION_VOTE_GAUSS_HALF 2
+
+//motion3
+int MotionVoteX[MOTION_VOTE_BIN_NUM2];
+int MotionVoteY[MOTION_VOTE_BIN_NUM2];
+int MotionVoteGauss[MOTION_VOTE_GAUSS]={1,2,3,2,1}; //平均スピード算出のためのガウスパラメータ
+
+int MotionVoteX2[MOTION_VOTE_BIN_NUM2];//重み付け後の投票結果（投票＝最も多い手のスピードを投票式で計算）
+int MotionVoteY2[MOTION_VOTE_BIN_NUM2];
+
+int MotionVoteXIir[MOTION_VOTE_BIN_NUM2];//Lowpassかけたヒスト
+int MotionVoteYIir[MOTION_VOTE_BIN_NUM2];
+
+
+void ofApp::motion_detect_3()
+{
+    ofxOscMessage m;
+    m.setAddress("/mouse/position3");
+    for(int i = 0; i < contourFinder.size(); i++) {
+        ofPoint center = toOf(contourFinder.getCenter(i));
+        ofPushMatrix();
+        ofTranslate(center.x, center.y);
+        int label = contourFinder.getLabel(i);
+        ofVec2f velocity = toOf(contourFinder.getVelocity(i));
+        velsx.push_back(velocity.x);
+        velsy.push_back(velocity.y);
+        if(((-MOTION_VOTE_BIN_NUM) <= velocity.x) && (velocity.x <= MOTION_VOTE_BIN_NUM)){
+            if(((-MOTION_VOTE_BIN_NUM) <= velocity.y) && (velocity.y <= MOTION_VOTE_BIN_NUM)){
+                MotionVoteX[int(velocity.x+MOTION_VOTE_BIN_NUM)]+= 1;
+                MotionVoteY[int(velocity.y+MOTION_VOTE_BIN_NUM)]+= 1;
+            }
+        }
+        string msg = ofToString(velocity.x);
+        m.addIntArg(center.x);
+        m.addIntArg(center.y);
+        m.addIntArg(label);
+        ofDrawBitmapString(msg, 0, 0);
+        ofPopMatrix();
+    }
+    //最も多い動きを計算
+    for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
+        for(int j=0; j<MOTION_VOTE_GAUSS; j++){
+            if(((i+j-MOTION_VOTE_GAUSS_HALF)<0) || ((i+j-MOTION_VOTE_GAUSS_HALF)>=MOTION_VOTE_BIN_NUM2)){
+                continue;
+            }
+            MotionVoteX2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteX[i]);
+            MotionVoteY2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteY[i]);
+        }
+        MotionVoteXIir[i]=(MotionVoteX[i]+MotionVoteXIir[i]*3)>>2;//Iir Lowpass
+        MotionVoteYIir[i]=(MotionVoteY[i]+MotionVoteYIir[i]*3)>>2;
+        MotionVoteX[i]=0;
+        MotionVoteY[i]=0;
+        if(i==MOTION_VOTE_BIN_NUM){
+            continue;
+        }
+        ofSetColor(255, 255, 0, 127);
+        ofRect(i*30,0, 30, MotionVoteXIir[i]*30);
+        ofSetColor(255, 0, 255, 127);
+        ofRect(i*30,300, 30, MotionVoteYIir[i]*30);
+    }
+    //こっから一番多い手の動きを投票式で決定
+    int max_votex=0;
+    int max_votey=0;
+    int max_votex_idx=0;
+    int max_votey_idx=0;
+    for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
+        if(MotionVoteX2[i] > max_votex){
+            max_votex=MotionVoteX2[i];
+            max_votex_idx=i;
+        }
+        if(MotionVoteY2[i] > max_votey){
+            max_votey=MotionVoteY2[i];
+            max_votey_idx=i;
+        }
+        MotionVoteX2[i]=0;
+        MotionVoteY2[i]=0;
+    }
+    
+    int Vx=0;
+    int Vy=0;
+    if(max_votex>0){
+        Vx=max_votex_idx-MOTION_VOTE_BIN_NUM;
+    }
+    if(max_votey>0){
+        Vy=max_votey_idx-MOTION_VOTE_BIN_NUM;
+    }
+    string msg2 = "Vx:"+ofToString(Vx);
+    if(Vx>0){
+        ofSetColor(255);
+    }else{
+        ofSetColor(255, 0, 0);
+    }
+    ofDrawBitmapString(msg2, 0, 30);
+    msg2 = "Vx:"+ofToString(Vy);
+    if(Vy>0){
+        ofSetColor(255);
+    }else{
+        ofSetColor(255, 0, 0);
+    }
+    ofDrawBitmapString(msg2, 0, 60);
+    for(int i = 0; i < velsx.size() ;i++){
+        //平均からどれだけずれてるのか
+        m.addIntArg( (velsx[i]-Vx)*(velsx[i]-Vx) + (velsy[i]-Vy)*(velsy[i]-Vy) );
+    }
+    velsx.clear();
+    velsy.clear();
+    sender.sendMessage(m);
+    //平均速度を送る
+    ofxOscMessage m2;
+    m2.setAddress("/mouse/position33");
+    m2.addIntArg(Vx);
+    m2.addIntArg(Vy);
+    sender.sendMessage(m2);
+}
+
+
 
 
 void ofApp::motion_detect_2()
