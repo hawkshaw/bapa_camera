@@ -55,6 +55,9 @@ void ofApp::motion_detect_3()
     }
     //最も多い動きを計算
     for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
+        if(i==MOTION_VOTE_BIN_NUM){
+            continue;
+        }
         for(int j=0; j<MOTION_VOTE_GAUSS; j++){
             if(((i+j-MOTION_VOTE_GAUSS_HALF)<0) || ((i+j-MOTION_VOTE_GAUSS_HALF)>=MOTION_VOTE_BIN_NUM2)){
                 continue;
@@ -62,17 +65,6 @@ void ofApp::motion_detect_3()
             MotionVoteX2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteX[i]);
             MotionVoteY2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteY[i]);
         }
-        MotionVoteXIir[i]=(MotionVoteX[i]+MotionVoteXIir[i]*3)>>2;//Iir Lowpass
-        MotionVoteYIir[i]=(MotionVoteY[i]+MotionVoteYIir[i]*3)>>2;
-        MotionVoteX[i]=0;
-        MotionVoteY[i]=0;
-        if(i==MOTION_VOTE_BIN_NUM){
-            continue;
-        }
-        ofSetColor(255, 255, 0, 127);
-        ofRect(i*30,0, 30, MotionVoteXIir[i]*30);
-        ofSetColor(255, 0, 255, 127);
-        ofRect(i*30,300, 30, MotionVoteYIir[i]*30);
     }
     //こっから一番多い手の動きを投票式で決定
     int max_votex=0;
@@ -88,8 +80,19 @@ void ofApp::motion_detect_3()
             max_votey=MotionVoteY2[i];
             max_votey_idx=i;
         }
+        MotionVoteXIir[i]=(MotionVoteX2[i]+MotionVoteXIir[i]*3)>>2;//Iir Lowpass
+        MotionVoteYIir[i]=(MotionVoteY2[i]+MotionVoteYIir[i]*3)>>2;
+        MotionVoteX[i]=0;
+        MotionVoteY[i]=0;
         MotionVoteX2[i]=0;
         MotionVoteY2[i]=0;
+        if(i==MOTION_VOTE_BIN_NUM){
+            continue;
+        }
+        ofSetColor(255, 255, 0, 127);
+        ofRect(i*30,0, 30, MotionVoteXIir[i]*10);
+        ofSetColor(255, 0, 255, 127);
+        ofRect(i*30,300, 30, MotionVoteYIir[i]*10);
     }
     
     int Vx=0;

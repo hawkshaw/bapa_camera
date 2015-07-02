@@ -14,7 +14,7 @@ void ofApp::setup() {
     vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(1280,720);
 #else
-    movie.loadMovie("video.mov");
+    movie.loadMovie("video4.mov");
     movie.play();
 #endif
     
