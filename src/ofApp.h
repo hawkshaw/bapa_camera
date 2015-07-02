@@ -14,7 +14,7 @@
 
 #define MAXSENDSIZE 400
 
-//#define _USE_LIVE_VIDEO
+#define _USE_LIVE_VIDEO
 
 class ofApp : public ofBaseApp {
 public:
@@ -41,16 +41,16 @@ public:
     int sendhistory[MAXSENDSIZE];
     
     ofxCvColorImage			colorImg;
-    
     ofxCvGrayscaleImage 	grayImage;
     ofxCvGrayscaleImage 	grayBg;
     ofxCvGrayscaleImage 	grayDiff;
     int _threshold;
     
-    void radChanged(int &radMin_);
+    void valChanged(int &val);
     ofParameter<int>  radMin;
     ofParameter<int>  radMax;
     ofParameter<int>  th;
+    ofParameter<int>  _th;
     ofParameter<int>  histscale;
     ofxPanel gui;
     
@@ -70,6 +70,7 @@ public:
     
 
     bool bHide = false;
-    bool				bLearnBakground;
+    bool bHideGui = false;
+    bool bLearnBakground;
 
 };

@@ -5,7 +5,6 @@ using namespace ofxCv;
 using namespace cv;
 
 
-
 void ofApp::setup() {
     ofSetVerticalSync(true);
     ofBackground(0);
@@ -22,26 +21,27 @@ void ofApp::setup() {
     grayImage.allocate(1280,720);
     grayBg.allocate(1280,720);
     grayDiff.allocate(1280,720);
-    _threshold = 100;
-    
-    contourFinder.setMinAreaRadius(50);
-    contourFinder.setMaxAreaRadius(100);
-    contourFinder.setThreshold(10);
-    // wait for half a frame before forgetting something
-    contourFinder.getTracker().setPersistence(15);
-    // an object can move up to 32 pixels per frame
-    contourFinder.getTracker().setMaximumDistance(32);
+    _threshold = 200;
     
     gui.setup("panel");
     gui.add(radMin.set("radMin", 1,1,10));
-    gui.add(radMax.set("radMax", 100,11,300));
-    gui.add(th.set("threshold", 10,0,255));
+    gui.add(radMax.set("radMax", 11,11,200));
+    gui.add(th.set("th_detection", 200,0,255));             //cv側の検出のthreshold(あんま関係ない?)
+    gui.add(_th.set("th_binarization", 230,0,255));         //2値化のためのthreshold
     gui.add(histscale.set("histscale", 10,10,50));
     
-    radMin.addListener(this, &ofApp::radChanged);
-    radMax.addListener(this, &ofApp::radChanged);
-    th.addListener(this, &ofApp::radChanged);
-    histscale.addListener(this, &ofApp::radChanged);
+    contourFinder.setMinAreaRadius(radMin);
+    contourFinder.setMaxAreaRadius(radMax);
+    contourFinder.setThreshold(th);
+    // wait for half a frame before forgetting something
+    contourFinder.getTracker().setPersistence(15);          //ここよくわからん
+    // an object can move up to 100 pixels per frame
+    contourFinder.getTracker().setMaximumDistance(100);     //横振りとるために増やしました
+    
+    radMin.addListener(this, &ofApp::valChanged);
+    radMax.addListener(this, &ofApp::valChanged);
+    th.addListener(this, &ofApp::valChanged);
+    histscale.addListener(this, &ofApp::valChanged);
     
     showLabels = true;
     
@@ -51,7 +51,7 @@ void ofApp::setup() {
     bLearnBakground = true;
 }
 
-void ofApp::radChanged(int &radMin_){
+void ofApp::valChanged(int &val){
     contourFinder.setMinAreaRadius(radMin);
     contourFinder.setMaxAreaRadius(radMax);
     contourFinder.setThreshold(th);
@@ -60,22 +60,26 @@ void ofApp::radChanged(int &radMin_){
 
 void ofApp::update() {
     
-    bool bNewFrame = false;
-    
 #ifdef _USE_LIVE_VIDEO
     vidGrabber.update();
-	   bNewFrame = vidGrabber.isFrameNew();
-    if (bNewFrame){
+    if (vidGrabber.isFrameNew()){
         //blur(movie, 10);
             colorImg.setFromPixels(vidGrabber.getPixels(), 1280,720);
             grayImage = colorImg;
         if (bLearnBakground == true){
-            grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
+            grayBg = grayImage;     // the = sign copys the pixels from grayImage into grayBg (operator overloading)
             bLearnBakground = false;
         }
-            grayDiff.absDiff(grayBg, grayImage);
-            grayDiff.threshold(_threshold);
-        contourFinder.findContours(grayDiff);
+        
+        //背景差分して2値化
+//            grayDiff.absDiff(grayBg, grayImage);
+//            grayDiff.threshold(_th);
+//            contourFinder.findContours(grayDiff);
+        
+        //背景差分とらずに2値化
+        grayImage.threshold(_th);
+        contourFinder.findContours(grayImage);
+        
     }
 #else
     movie.update();
@@ -89,13 +93,16 @@ void ofApp::update() {
 void ofApp::draw() {
     ofSetBackgroundAuto(showLabels);
     RectTracker& tracker = contourFinder.getTracker();
-    if(showLabels) {
+    if(showLabels) {                                    //camera capture or video play
         ofSetColor(255);
-        //vidGrabber.draw(0, 0);
+#ifdef _USE_LIVE_VIDEO
+        if(!bHide) vidGrabber.draw(0, 0);
         //grayDiff.draw(0,0);
+        else grayImage.draw(0, 0);
+#endif
         contourFinder.draw();
+        if(!bHideGui) gui.draw();
         
-        if(!bHide) gui.draw();
         if(SEND_METHOD==3){
             motion_detect_3();
         }
@@ -105,7 +112,7 @@ void ofApp::draw() {
         if(SEND_METHOD==1 || SEND_METHOD==0){
             motion_detect_01();
         }
-    } else {
+    } else {                                             //トラッキングの軌跡(スペースで切り替え)
         for(int i = 0; i < contourFinder.size(); i++) {
             unsigned int label = contourFinder.getLabel(i);
             // only draw a line if this is not a new label
@@ -119,7 +126,7 @@ void ofApp::draw() {
                 // get the centers of the rectangles
                 ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height / 2);
                 ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
-                //ofLine(previousPosition, currentPosition);
+                ofLine(previousPosition, currentPosition);
             }
         }
     }
@@ -152,23 +159,16 @@ void ofApp::draw() {
 }
 
 void ofApp::keyPressed(int key) {
-//    if(key == ' ') {
-//        showLabels = !showLabels;
+    if(key == ' ') showLabels = !showLabels;
+    if(key == 'h') bHide = !bHide;
+    if(key == 'g') bHideGui = !bHideGui;
+    if(key == 'b') bLearnBakground = true;
+//    if(key == '+'){
+//        _threshold ++;
+//        if (_threshold > 255) _threshold = 255;
 //    }
-//    
-//    if(key == 'h') bHide = !bHide;
-    switch(key){
-        case ' ':
-            bLearnBakground = true;
-            break;
-case '+':
-    _threshold ++;
-    if (_threshold > 255) _threshold = 255;
-    break;
-case '-':
-    _threshold --;
-    if (_threshold < 0) _threshold = 0;
-    break;
-    }
-
+//    if(key == '-'){
+//        _threshold --;
+//        if (_threshold < 0) _threshold = 0;
+//    }
 }
