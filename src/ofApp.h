@@ -51,10 +51,11 @@ public:
     ofParameter<int>  radMin;
     ofParameter<int>  radMax;
     ofParameter<int>  th;
+    ofParameter<int>  histscale;
     ofxPanel gui;
     
     //ofxCvContourFinder 	contourFinder;
-    
+    //SEND_METHOD 3
     
     //SEND_METHOD 2
     class clap{

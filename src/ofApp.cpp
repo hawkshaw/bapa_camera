@@ -14,7 +14,7 @@ void ofApp::setup() {
     vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(1280,720);
 #else
-    movie.loadMovie("video4.mov");
+    movie.loadMovie("video.mov");
     movie.play();
 #endif
     
@@ -36,10 +36,12 @@ void ofApp::setup() {
     gui.add(radMin.set("radMin", 1,1,10));
     gui.add(radMax.set("radMax", 100,11,300));
     gui.add(th.set("threshold", 10,0,255));
+    gui.add(histscale.set("histscale", 10,10,50));
     
     radMin.addListener(this, &ofApp::radChanged);
     radMax.addListener(this, &ofApp::radChanged);
     th.addListener(this, &ofApp::radChanged);
+    histscale.addListener(this, &ofApp::radChanged);
     
     showLabels = true;
     

@@ -31,7 +31,7 @@ int MotionVoteYIir[MOTION_VOTE_BIN_NUM2];
 void ofApp::motion_detect_3()
 {
     ofxOscMessage m;
-    m.setAddress("/mouse/position3");
+    m.setAddress("/mouse/position2");
     for(int i = 0; i < contourFinder.size(); i++) {
         ofPoint center = toOf(contourFinder.getCenter(i));
         ofPushMatrix();
@@ -89,12 +89,14 @@ void ofApp::motion_detect_3()
         if(i==MOTION_VOTE_BIN_NUM){
             continue;
         }
-        ofSetColor(255, 255, 0, 127);
-        ofRect(i*30,0, 30, MotionVoteXIir[i]*10);
-        ofSetColor(255, 0, 255, 127);
-        ofRect(i*30,300, 30, MotionVoteYIir[i]*10);
+        ofSetColor(255, 255, 255, 127);
+        ofRect(i*30,0, 30, MotionVoteXIir[i]*histscale);
+        ofSetColor(255, 255, 255, 127);
+        ofRect(i*30,300, 30, MotionVoteYIir[i]*histscale);
     }
-    
+    ofSetColor(255, 0, 0,255);
+    ofRect(max_votex_idx*30,0, 30, MotionVoteXIir[max_votex_idx]*10);
+    ofRect(max_votey_idx*30,300, 30, MotionVoteYIir[max_votey_idx]*10);
     int Vx=0;
     int Vy=0;
     if(max_votex>0){
@@ -126,7 +128,7 @@ void ofApp::motion_detect_3()
     sender.sendMessage(m);
     //平均速度を送る
     ofxOscMessage m2;
-    m2.setAddress("/mouse/position33");
+    m2.setAddress("/mouse/position22");
     m2.addIntArg(Vx);
     m2.addIntArg(Vy);
     sender.sendMessage(m2);
