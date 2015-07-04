@@ -58,12 +58,18 @@ void ofApp::motion_detect_3()
         if(i==MOTION_VOTE_BIN_NUM){
             continue;
         }
-        for(int j=0; j<MOTION_VOTE_GAUSS; j++){
-            if(((i+j-MOTION_VOTE_GAUSS_HALF)<0) || ((i+j-MOTION_VOTE_GAUSS_HALF)>=MOTION_VOTE_BIN_NUM2)){
-                continue;
+        if(   ((i <= MOTION_VOTE_BIN_NUM-detectSpeedMin) && (i >= MOTION_VOTE_BIN_NUM-detectSpeedMax))
+           || ((i >= MOTION_VOTE_BIN_NUM+detectSpeedMin) && (i <= MOTION_VOTE_BIN_NUM+detectSpeedMax))){
+            for(int j=0; j<MOTION_VOTE_GAUSS; j++){
+                if(((i+j-MOTION_VOTE_GAUSS_HALF)<0) || ((i+j-MOTION_VOTE_GAUSS_HALF)>=MOTION_VOTE_BIN_NUM2)){
+                    continue;
+                }
+                MotionVoteX2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteX[i]);
+                MotionVoteY2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteY[i]);
             }
-            MotionVoteX2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteX[i]);
-            MotionVoteY2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteY[i]);
+        }else{
+            MotionVoteX2[i] += MotionVoteX[i];
+            MotionVoteY2[i] += MotionVoteY[i];
         }
     }
     //こっから一番多い手の動きを投票式で決定
@@ -71,14 +77,18 @@ void ofApp::motion_detect_3()
     int max_votey=0;
     int max_votex_idx=0;
     int max_votey_idx=0;
+    int histwidth=30;
     for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
-        if(MotionVoteX2[i] > max_votex){
-            max_votex=MotionVoteX2[i];
-            max_votex_idx=i;
-        }
-        if(MotionVoteY2[i] > max_votey){
-            max_votey=MotionVoteY2[i];
-            max_votey_idx=i;
+        if(   ((i <= MOTION_VOTE_BIN_NUM-detectSpeedMin) && (i >= MOTION_VOTE_BIN_NUM-detectSpeedMax))
+           || ((i >= MOTION_VOTE_BIN_NUM+detectSpeedMin) && (i <= MOTION_VOTE_BIN_NUM+detectSpeedMax))){
+            if(MotionVoteX2[i] > max_votex){
+                max_votex=MotionVoteX2[i];
+                max_votex_idx=i;
+            }
+            if(MotionVoteY2[i] > max_votey){
+                max_votey=MotionVoteY2[i];
+                max_votey_idx=i;
+            }
         }
         MotionVoteXIir[i]=(MotionVoteX2[i]+MotionVoteXIir[i]*3)>>2;//Iir Lowpass
         MotionVoteYIir[i]=(MotionVoteY2[i]+MotionVoteYIir[i]*3)>>2;
@@ -89,14 +99,21 @@ void ofApp::motion_detect_3()
         if(i==MOTION_VOTE_BIN_NUM){
             continue;
         }
+        if(   (i == MOTION_VOTE_BIN_NUM-detectSpeedMin)
+           || (i == MOTION_VOTE_BIN_NUM+detectSpeedMin)
+           || (i == MOTION_VOTE_BIN_NUM-detectSpeedMax)
+           || (i == MOTION_VOTE_BIN_NUM+detectSpeedMax)){
+            ofSetColor(0, 0, 255, 127);
+            ofRect(i*histwidth,0, histwidth, 5*histscale);
+            ofRect(i*histwidth,300, histwidth, 5*histscale);
+        }
         ofSetColor(255, 255, 255, 127);
-        ofRect(i*30,0, 30, MotionVoteXIir[i]*histscale);
-        ofSetColor(255, 255, 255, 127);
-        ofRect(i*30,300, 30, MotionVoteYIir[i]*histscale);
+        ofRect(i*histwidth,0, histwidth, MotionVoteXIir[i]*histscale);
+        ofRect(i*histwidth,300, histwidth, MotionVoteYIir[i]*histscale);
     }
     ofSetColor(255, 0, 0,255);
-    ofRect(max_votex_idx*30,0, 30, MotionVoteXIir[max_votex_idx]*10);
-    ofRect(max_votey_idx*30,300, 30, MotionVoteYIir[max_votey_idx]*10);
+    ofRect(max_votex_idx*histwidth,0, histwidth, MotionVoteXIir[max_votex_idx]*10);
+    ofRect(max_votey_idx*histwidth,300, histwidth, MotionVoteYIir[max_votey_idx]*10);
     int Vx=0;
     int Vy=0;
     if(max_votex>0){

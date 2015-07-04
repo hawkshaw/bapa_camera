@@ -8,13 +8,15 @@
 #include "ofMotionDetect.h"
 
 #define HOST "localhost"
+//#define HOST "192.168.128.148"
+
 #define PORT 12345
 
 #define SEND_METHOD 3
 
 #define MAXSENDSIZE 400
 
-#define _USE_LIVE_VIDEO
+//#define _USE_LIVE_VIDEO
 
 
 ///////TEST///////////
@@ -56,6 +58,8 @@ public:
     ofParameter<int>  th;
     ofParameter<int>  _th;
     ofParameter<int>  histscale;
+    ofParameter<int>  detectSpeedMin;
+    ofParameter<int>  detectSpeedMax;
     ofxPanel gui;
     
     //ofxCvContourFinder 	contourFinder;

@@ -28,8 +28,10 @@ void ofApp::setup() {
     gui.add(radMax.set("radMax", 11,11,200));
     gui.add(th.set("th_detection", 200,0,255));             //cv側の検出のthreshold(あんま関係ない?)
     gui.add(_th.set("th_binarization", 230,0,255));         //2値化のためのthreshold
-    gui.add(histscale.set("histscale", 10,10,50));
-    
+    gui.add(histscale.set("histscale", 10,3,50));
+    gui.add(detectSpeedMin.set("detectSpeedMin", 4,1,30));
+    gui.add(detectSpeedMax.set("detectSpeedMax", 30,1,30));
+
     contourFinder.setMinAreaRadius(radMin);
     contourFinder.setMaxAreaRadius(radMax);
     contourFinder.setThreshold(th);
@@ -130,32 +132,6 @@ void ofApp::draw() {
             }
         }
     }
-    
-//    // this chunk of code visualizes the creation and destruction of labels
-//    const vector<unsigned int>& currentLabels = tracker.getCurrentLabels();
-//    const vector<unsigned int>& previousLabels = tracker.getPreviousLabels();
-//    const vector<unsigned int>& newLabels = tracker.getNewLabels();
-//    const vector<unsigned int>& deadLabels = tracker.getDeadLabels();
-//    ofSetColor(cyanPrint);
-//    for(int i = 0; i < currentLabels.size(); i++) {
-//        int j = currentLabels[i];
-//        ofLine(j, 0, j, 4);
-//    }
-//    ofSetColor(magentaPrint);
-//    for(int i = 0; i < previousLabels.size(); i++) {
-//        int j = previousLabels[i];
-//        ofLine(j, 4, j, 8);
-//    }
-//    ofSetColor(yellowPrint);
-//    for(int i = 0; i < newLabels.size(); i++) {
-//        int j = newLabels[i];
-//        ofLine(j, 8, j, 12);
-//    }
-//    ofSetColor(ofColor::white);
-//    for(int i = 0; i < deadLabels.size(); i++) {
-//        int j = deadLabels[i];
-//        ofLine(j, 12, j, 16);
-//    }
 }
 
 void ofApp::keyPressed(int key) {
