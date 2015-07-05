@@ -138,7 +138,12 @@ void ofApp::motion_detect_3()
     ofDrawBitmapString(msg2, 0, 60);
     for(int i = 0; i < velsx.size() ;i++){
         //平均からどれだけずれてるのか
-        m.addIntArg( (velsx[i]-Vx)*(velsx[i]-Vx) + (velsy[i]-Vy)*(velsy[i]-Vy) );
+        if(   ((velsx[i] <= MOTION_VOTE_BIN_NUM-detectSpeedMin) && (velsx[i] >= MOTION_VOTE_BIN_NUM-detectSpeedMax))
+           || ((velsx[i] >= MOTION_VOTE_BIN_NUM+detectSpeedMin) && (velsx[i] <= MOTION_VOTE_BIN_NUM+detectSpeedMax))){
+            m.addIntArg( (velsx[i]-Vx)*(velsx[i]-Vx) + (velsy[i]-Vy)*(velsy[i]-Vy) );
+        }else{
+            m.addIntArg(-1);
+        }
     }
     velsx.clear();
     velsy.clear();

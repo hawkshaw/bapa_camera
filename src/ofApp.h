@@ -8,7 +8,7 @@
 #include "ofMotionDetect.h"
 
 #define HOST "localhost"
-//#define HOST "192.168.128.148"
+//#define HOST "192.168.13.3"
 
 #define PORT 12345
 
@@ -16,7 +16,7 @@
 
 #define MAXSENDSIZE 400
 
-//#define _USE_LIVE_VIDEO
+#define _USE_LIVE_VIDEO
 
 
 ///////TEST///////////
