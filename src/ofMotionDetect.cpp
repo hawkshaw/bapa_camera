@@ -31,26 +31,58 @@ int MotionVoteYIir[MOTION_VOTE_BIN_NUM2];
 void ofApp::motion_detect_4()
 {
     ofxOscMessage m;
-    m.setAddress("/mouse/position2");
+    m.setAddress("/mouse/position4");
+    if((areaBottom <= areaTop)||(areaTopL >= areaTopR)||(areaBottomL>=areaBottomR)){
+        return;
+    }
     for(int i = 0; i < contourFinder.size(); i++) {
         ofPoint center = toOf(contourFinder.getCenter(i));
         ofPushMatrix();
         ofTranslate(center.x, center.y);
         int label = contourFinder.getLabel(i);
         ofVec2f velocity = toOf(contourFinder.getVelocity(i));
-        velsx.push_back(velocity.x);
-        velsy.push_back(velocity.y);
         if(((-MOTION_VOTE_BIN_NUM) <= velocity.x) && (velocity.x <= MOTION_VOTE_BIN_NUM)){
             if(((-MOTION_VOTE_BIN_NUM) <= velocity.y) && (velocity.y <= MOTION_VOTE_BIN_NUM)){
                 MotionVoteX[int(velocity.x+MOTION_VOTE_BIN_NUM)]+= 1;
                 MotionVoteY[int(velocity.y+MOTION_VOTE_BIN_NUM)]+= 1;
             }
         }
-        string msg = ofToString(velocity.x);
-        m.addIntArg(center.x);
-        m.addIntArg(center.y);
-        m.addIntArg(label);
-        ofDrawBitmapString(msg, 0, 0);
+        string msg = ofToString(label);
+        //ここから座標変換(10bit 1024)
+        int buf_y,buf_x;//10bit
+        int buf_z = 0;
+        buf_y = (((int)(center.y-areaTop))<<10)/(areaBottom-areaTop);
+        int buf_xL,buf_xR;
+        buf_xL=areaTopL+(((areaBottomL-areaTopL)*buf_y)>>10);
+        buf_xR=areaTopR+(((areaBottomR-areaTopR)*buf_y)>>10);
+        if(buf_xR==buf_xL){
+            continue;
+        }
+        buf_x = (((int)(center.x-buf_xL))<<10)/(buf_xR-buf_xL);
+        //msg = ofToString(buf_x)+":"+ofToString(buf_y);
+        //ここまで座標変換
+        for(int j=0;j<newx_1f.size();j++){
+            if(label==velsid_1f[j]){
+                buf_z=newy_1f[j]-buf_y;
+                buf_y=newy_1f[j];
+                break;
+            }
+        }
+        velsid.push_back(label);
+        velsx.push_back(velocity.x);
+        velsy.push_back(velocity.y);
+        int buf_speed;
+        buf_speed = velocity.x*velocity.x+velocity.y*velocity.y;
+        
+        newx.push_back(buf_x);
+        newy.push_back(buf_y);
+        
+        msg = ofToString(buf_x)+":"+ofToString(buf_y)+":"+ofToString(buf_z);
+        m.addIntArg(buf_x);
+        m.addIntArg(buf_y);
+        m.addIntArg(buf_z);
+        m.addIntArg(buf_speed);
+        ofDrawBitmapString(msg, 10, 10);
         ofPopMatrix();
     }
     //最も多い動きを計算
@@ -145,8 +177,30 @@ void ofApp::motion_detect_4()
             m.addIntArg(-1);
         }
     }
+    //velsx_1f.resize(velsx.size());
+    //velsy_1f.resize(velsy.size());
+    //copy(velsx.begin(),velsx.end(),velsx_1f.begin());
+    //copy(velsy.begin(),velsy.end(),velsy_1f.begin());
+    
+    velsid_1f.resize(velsid.size());
+    copy(velsid.begin(),velsid.end(),velsid_1f.begin());
+
+    newx_1f.resize(newx.size());
+    newy_1f.resize(newy.size());
+    copy(newx.begin(),newx.end(),newx_1f.begin());
+    copy(newy.begin(),newy.end(),newy_1f.begin());
+    
     velsx.clear();
     velsy.clear();
+    velsid.clear();
+    newx.clear();
+    newy.clear();
+    if(bClearLog){
+        velsid_1f.clear();
+        newx_1f.clear();
+        newy_1f.clear();
+        bClearLog=false;
+    }
     sender.sendMessage(m);
     //平均速度を送る
     ofxOscMessage m2;

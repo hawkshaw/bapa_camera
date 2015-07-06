@@ -24,6 +24,7 @@ public:
     void setup();
     void update();
     void draw();
+    void drawWaku();
     void keyPressed(int key);
     float threshold;
     ofxCv::ContourFinder contourFinder;
@@ -58,6 +59,17 @@ public:
     ofParameter<int>  histscale;
     ofParameter<int>  detectSpeedMin;
     ofParameter<int>  detectSpeedMax;
+    
+    //検出エリアパラメータ 百分率
+    ofParameter<int>  detectAreaTop;
+    ofParameter<int>  detectAreaBottom;
+    ofParameter<int>  detectAreaTopR;
+    ofParameter<int>  detectAreaTopL;
+    ofParameter<int>  detectAreaBottomR;
+    ofParameter<int>  detectAreaBottomL;
+    int areaTop,areaBottom,areaTopR,areaTopL,areaBottomR,areaBottomL;
+    
+    
     ofxPanel gui;
     
     //ofxCvContourFinder 	contourFinder;
@@ -73,10 +85,24 @@ public:
     std::vector<clap> claps;
     std::vector<signed int> velsx;
     std::vector<signed int> velsy;
+    std::vector<signed int> velsid;
+    //std::vector<signed int> velsx_1f;
+    //std::vector<signed int> velsy_1f;
+    std::vector<signed int> velsid_1f;
+    //中心座標
+    std::vector<signed int> centersx;
+    std::vector<signed int> centersy;
+    std::vector<signed int> centersx_1f;
+    std::vector<signed int> centersy_1f;
+    //座標変換後の中心座標
+    std::vector<signed int> newx;
+    std::vector<signed int> newy;
+    std::vector<signed int> newx_1f;
+    std::vector<signed int> newy_1f;
     
-
     bool bHide = false;
     bool bHideGui = false;
     bool bLearnBakground;
+    bool bClearLog = false;
 
 };

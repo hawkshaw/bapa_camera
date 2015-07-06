@@ -31,6 +31,12 @@ void ofApp::setup() {
     gui.add(histscale.set("histscale", 10,3,50));
     gui.add(detectSpeedMin.set("detectSpeedMin", 4,1,30));
     gui.add(detectSpeedMax.set("detectSpeedMax", 30,1,30));
+    gui.add(detectAreaTop.set("detectAreaTop", 20,0,256));
+    gui.add(detectAreaTopL.set("detectAreaTopL", 64,0,256));
+    gui.add(detectAreaTopR.set("detectAreaTopR", 192,0,256));
+    gui.add(detectAreaBottom.set("detectAreaBottom", 236,0,256));
+    gui.add(detectAreaBottomL.set("detectAreaBottomL", 32,0,256));
+    gui.add(detectAreaBottomR.set("detectAreaBottomR", 224,0,256));
 
     contourFinder.setMinAreaRadius(radMin);
     contourFinder.setMaxAreaRadius(radMax);
@@ -92,6 +98,27 @@ void ofApp::update() {
 #endif
 }
 
+void ofApp::drawWaku(){
+    int w;
+    w = ofGetWidth();
+    int h;
+    h = ofGetHeight();
+    ofSetColor(255, 255, 0);
+    ofSetLineWidth(4);
+    areaTop= (h*detectAreaTop)>>8;
+    areaTopL= (w*detectAreaTopL)>> 8;
+    areaTopR= (w*detectAreaTopR)>> 8;
+    areaBottom= (h*detectAreaBottom)>>8;
+    areaBottomR= (w*detectAreaBottomR)>> 8;
+    areaBottomL= (w*detectAreaBottomL)>> 8;
+    
+    ofLine(  areaTopL, areaTop, areaTopR ,areaTop);
+    ofLine(  areaTopL, areaTop, areaBottomL ,areaBottom);
+    ofLine(  areaTopR, areaTop, areaBottomR ,areaBottom);
+    ofLine(  areaBottomL, areaBottom, areaBottomR ,areaBottom);
+}
+
+
 void ofApp::draw() {
     ofSetBackgroundAuto(showLabels);
     RectTracker& tracker = contourFinder.getTracker();
@@ -117,6 +144,7 @@ void ofApp::draw() {
         if(SEND_METHOD==1 || SEND_METHOD==0){
             motion_detect_01();
         }
+        drawWaku();
     } else {                                             //トラッキングの軌跡(スペースで切り替え)
         for(int i = 0; i < contourFinder.size(); i++) {
             unsigned int label = contourFinder.getLabel(i);
@@ -142,7 +170,9 @@ void ofApp::keyPressed(int key) {
     if(key == 'h') bHide = !bHide;
     if(key == 'g') bHideGui = !bHideGui;
     if(key == 'b') bLearnBakground = true;
-    
+    if(key == 'c') {
+        bClearLog=true;
+    }
     if(key == 's') {
         gui.saveToFile("settings.xml");
     }
