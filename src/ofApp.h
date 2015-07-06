@@ -19,9 +19,6 @@
 //#define _USE_LIVE_VIDEO
 
 
-///////TEST///////////
-
-
 class ofApp : public ofBaseApp {
 public:
     void setup();
