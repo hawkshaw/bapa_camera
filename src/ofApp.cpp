@@ -10,7 +10,7 @@ void ofApp::setup() {
     ofBackground(0);
     
 #ifdef _USE_LIVE_VIDEO
-    vidGrabber.setVerbose(true);
+    //vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(1280,720);
 #else
     movie.loadMovie("video.mov");
@@ -26,7 +26,7 @@ void ofApp::setup() {
     gui.setup("panel");
     gui.add(radMin.set("radMin", 1,1,10));
     gui.add(radMax.set("radMax", 11,11,200));
-    gui.add(th.set("th_detection", 200,0,255));             //cv側の検出のthreshold(あんま関係ない?)
+    gui.add(th.set("th_detection", 200,0,255));             //cv側の検出のthreshold(2値化しないとき)
     gui.add(_th.set("th_binarization", 230,0,255));         //2値化のためのthreshold
     gui.add(histscale.set("histscale", 10,3,50));
     gui.add(detectSpeedMin.set("detectSpeedMin", 4,1,30));
@@ -139,6 +139,14 @@ void ofApp::keyPressed(int key) {
     if(key == 'h') bHide = !bHide;
     if(key == 'g') bHideGui = !bHideGui;
     if(key == 'b') bLearnBakground = true;
+    
+    if(key == 's') {
+        gui.saveToFile("settings.xml");
+    }
+    if(key == 'l') {
+        gui.loadFromFile("settings.xml");
+    }
+
 //    if(key == '+'){
 //        _threshold ++;
 //        if (_threshold > 255) _threshold = 255;

@@ -1,0 +1,10 @@
+<panel>
+	<radMin>1</radMin>
+	<radMax>11</radMax>
+	<th_detection>200</th_detection>
+	<th_binarization>230</th_binarization>
+	<histscale>10</histscale>
+	<detectSpeedMin>4</detectSpeedMin>
+	<detectSpeedMax>30</detectSpeedMax>
+<panel/>
+</panel>
