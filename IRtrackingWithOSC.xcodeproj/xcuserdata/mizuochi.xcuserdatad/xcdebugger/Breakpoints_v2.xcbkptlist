@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/ofMotionDetect.cpp"
-            timestampString = "457690932.632785"
+            timestampString = "457891285.244197"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "162"
-            endingLineNumber = "162"
+            startingLineNumber = "299"
+            endingLineNumber = "299"
             landmarkName = "ofApp::motion_detect_2()"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/ofMotionDetect.cpp"
-            timestampString = "457690932.632785"
+            timestampString = "457891285.244197"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "164"
-            endingLineNumber = "164"
+            startingLineNumber = "301"
+            endingLineNumber = "301"
             landmarkName = "ofApp::motion_detect_2()"
             landmarkType = "5">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/ofMotionDetect.cpp"
-            timestampString = "457690932.632785"
+            timestampString = "457891285.244197"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "218"
-            endingLineNumber = "218">
+            startingLineNumber = "355"
+            endingLineNumber = "355">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -56,11 +56,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/ofMotionDetect.cpp"
-            timestampString = "457690932.632785"
+            timestampString = "457891285.244197"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
+            startingLineNumber = "307"
+            endingLineNumber = "307"
             landmarkName = "ofApp::motion_detect_2()"
             landmarkType = "5">
          </BreakpointContent>

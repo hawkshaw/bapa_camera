@@ -28,6 +28,138 @@ int MotionVoteXIir[MOTION_VOTE_BIN_NUM2];//Lowpassかけたヒスト
 int MotionVoteYIir[MOTION_VOTE_BIN_NUM2];
 
 
+void ofApp::motion_detect_4()
+{
+    ofxOscMessage m;
+    m.setAddress("/mouse/position2");
+    for(int i = 0; i < contourFinder.size(); i++) {
+        ofPoint center = toOf(contourFinder.getCenter(i));
+        ofPushMatrix();
+        ofTranslate(center.x, center.y);
+        int label = contourFinder.getLabel(i);
+        ofVec2f velocity = toOf(contourFinder.getVelocity(i));
+        velsx.push_back(velocity.x);
+        velsy.push_back(velocity.y);
+        if(((-MOTION_VOTE_BIN_NUM) <= velocity.x) && (velocity.x <= MOTION_VOTE_BIN_NUM)){
+            if(((-MOTION_VOTE_BIN_NUM) <= velocity.y) && (velocity.y <= MOTION_VOTE_BIN_NUM)){
+                MotionVoteX[int(velocity.x+MOTION_VOTE_BIN_NUM)]+= 1;
+                MotionVoteY[int(velocity.y+MOTION_VOTE_BIN_NUM)]+= 1;
+            }
+        }
+        string msg = ofToString(velocity.x);
+        m.addIntArg(center.x);
+        m.addIntArg(center.y);
+        m.addIntArg(label);
+        ofDrawBitmapString(msg, 0, 0);
+        ofPopMatrix();
+    }
+    //最も多い動きを計算
+    for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
+        if(i==MOTION_VOTE_BIN_NUM){
+            continue;
+        }
+        if(   ((i <= MOTION_VOTE_BIN_NUM-detectSpeedMin) && (i >= MOTION_VOTE_BIN_NUM-detectSpeedMax))
+           || ((i >= MOTION_VOTE_BIN_NUM+detectSpeedMin) && (i <= MOTION_VOTE_BIN_NUM+detectSpeedMax))){
+            for(int j=0; j<MOTION_VOTE_GAUSS; j++){
+                if(((i+j-MOTION_VOTE_GAUSS_HALF)<0) || ((i+j-MOTION_VOTE_GAUSS_HALF)>=MOTION_VOTE_BIN_NUM2)){
+                    continue;
+                }
+                MotionVoteX2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteX[i]);
+                MotionVoteY2[i+j-MOTION_VOTE_GAUSS_HALF] += (MotionVoteGauss[j] * MotionVoteY[i]);
+            }
+        }else{
+            MotionVoteX2[i] += MotionVoteX[i];
+            MotionVoteY2[i] += MotionVoteY[i];
+        }
+    }
+    //こっから一番多い手の動きを投票式で決定
+    int max_votex=0;
+    int max_votey=0;
+    int max_votex_idx=0;
+    int max_votey_idx=0;
+    int histwidth=30;
+    for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
+        if(   ((i <= MOTION_VOTE_BIN_NUM-detectSpeedMin) && (i >= MOTION_VOTE_BIN_NUM-detectSpeedMax))
+           || ((i >= MOTION_VOTE_BIN_NUM+detectSpeedMin) && (i <= MOTION_VOTE_BIN_NUM+detectSpeedMax))){
+            if(MotionVoteX2[i] > max_votex){
+                max_votex=MotionVoteX2[i];
+                max_votex_idx=i;
+            }
+            if(MotionVoteY2[i] > max_votey){
+                max_votey=MotionVoteY2[i];
+                max_votey_idx=i;
+            }
+        }
+        MotionVoteXIir[i]=(MotionVoteX2[i]+MotionVoteXIir[i]*3)>>2;//Iir Lowpass
+        MotionVoteYIir[i]=(MotionVoteY2[i]+MotionVoteYIir[i]*3)>>2;
+        MotionVoteX[i]=0;
+        MotionVoteY[i]=0;
+        MotionVoteX2[i]=0;
+        MotionVoteY2[i]=0;
+        if(i==MOTION_VOTE_BIN_NUM){
+            continue;
+        }
+        if(   (i == MOTION_VOTE_BIN_NUM-detectSpeedMin)
+           || (i == MOTION_VOTE_BIN_NUM+detectSpeedMin)
+           || (i == MOTION_VOTE_BIN_NUM-detectSpeedMax)
+           || (i == MOTION_VOTE_BIN_NUM+detectSpeedMax)){
+            ofSetColor(0, 0, 255, 127);
+            ofRect(i*histwidth,0, histwidth, 5*histscale);
+            ofRect(i*histwidth,300, histwidth, 5*histscale);
+        }
+        ofSetColor(255, 255, 255, 127);
+        ofRect(i*histwidth,0, histwidth, MotionVoteXIir[i]*histscale);
+        ofRect(i*histwidth,300, histwidth, MotionVoteYIir[i]*histscale);
+    }
+    ofSetColor(255, 0, 0,255);
+    ofRect(max_votex_idx*histwidth,0, histwidth, MotionVoteXIir[max_votex_idx]*histscale);
+    ofRect(max_votey_idx*histwidth,300, histwidth, MotionVoteYIir[max_votey_idx]*histscale);
+    int Vx=0;
+    int Vy=0;
+    if(max_votex>0){
+        Vx=max_votex_idx-MOTION_VOTE_BIN_NUM;
+    }
+    if(max_votey>0){
+        Vy=max_votey_idx-MOTION_VOTE_BIN_NUM;
+    }
+    string msg2 = "Vx:"+ofToString(Vx);
+    if(Vx>0){
+        ofSetColor(255);
+    }else{
+        ofSetColor(255, 0, 0);
+    }
+    ofDrawBitmapString(msg2, 0, 30);
+    msg2 = "Vx:"+ofToString(Vy);
+    if(Vy>0){
+        ofSetColor(255);
+    }else{
+        ofSetColor(255, 0, 0);
+    }
+    ofDrawBitmapString(msg2, 0, 60);
+    for(int i = 0; i < velsx.size() ;i++){
+        //平均からどれだけずれてるのか
+        if(   ((velsx[i] <= -detectSpeedMin) && (velsx[i] >= -detectSpeedMax))
+           || ((velsx[i] >= detectSpeedMin) && (velsx[i] <= detectSpeedMax))){
+            m.addIntArg( (velsx[i]-Vx)*(velsx[i]-Vx) + (velsy[i]-Vy)*(velsy[i]-Vy) );
+        }else{
+            m.addIntArg(-1);
+        }
+    }
+    velsx.clear();
+    velsy.clear();
+    sender.sendMessage(m);
+    //平均速度を送る
+    ofxOscMessage m2;
+    m2.setAddress("/mouse/position22");
+    m2.addIntArg(Vx);
+    m2.addIntArg(Vy);
+    sender.sendMessage(m2);
+}
+
+
+
+
+
 void ofApp::motion_detect_3()
 {
     ofxOscMessage m;
@@ -112,8 +244,8 @@ void ofApp::motion_detect_3()
         ofRect(i*histwidth,300, histwidth, MotionVoteYIir[i]*histscale);
     }
     ofSetColor(255, 0, 0,255);
-    ofRect(max_votex_idx*histwidth,0, histwidth, MotionVoteXIir[max_votex_idx]*10);
-    ofRect(max_votey_idx*histwidth,300, histwidth, MotionVoteYIir[max_votey_idx]*10);
+    ofRect(max_votex_idx*histwidth,0, histwidth, MotionVoteXIir[max_votex_idx]*histscale);
+    ofRect(max_votey_idx*histwidth,300, histwidth, MotionVoteYIir[max_votey_idx]*histscale);
     int Vx=0;
     int Vy=0;
     if(max_votex>0){
@@ -138,8 +270,8 @@ void ofApp::motion_detect_3()
     ofDrawBitmapString(msg2, 0, 60);
     for(int i = 0; i < velsx.size() ;i++){
         //平均からどれだけずれてるのか
-        if(   ((velsx[i] <= MOTION_VOTE_BIN_NUM-detectSpeedMin) && (velsx[i] >= MOTION_VOTE_BIN_NUM-detectSpeedMax))
-           || ((velsx[i] >= MOTION_VOTE_BIN_NUM+detectSpeedMin) && (velsx[i] <= MOTION_VOTE_BIN_NUM+detectSpeedMax))){
+        if(   ((velsx[i] <= -detectSpeedMin) && (velsx[i] >= -detectSpeedMax))
+           || ((velsx[i] >= detectSpeedMin) && (velsx[i] <= detectSpeedMax))){
             m.addIntArg( (velsx[i]-Vx)*(velsx[i]-Vx) + (velsy[i]-Vy)*(velsy[i]-Vy) );
         }else{
             m.addIntArg(-1);

@@ -13,7 +13,7 @@ void ofApp::setup() {
     vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(1280,720);
 #else
-    movie.loadMovie("video.mov");
+    movie.loadMovie("video2.mov");
     movie.play();
 #endif
     
@@ -105,6 +105,9 @@ void ofApp::draw() {
         contourFinder.draw();
         if(!bHideGui) gui.draw();
         
+        if(SEND_METHOD==4){
+            motion_detect_4();
+        }
         if(SEND_METHOD==3){
             motion_detect_3();
         }

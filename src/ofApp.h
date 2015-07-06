@@ -12,11 +12,11 @@
 
 #define PORT 12345
 
-#define SEND_METHOD 3
+#define SEND_METHOD 4
 
 #define MAXSENDSIZE 400
 
-#define _USE_LIVE_VIDEO
+//#define _USE_LIVE_VIDEO
 
 
 ///////TEST///////////
@@ -31,6 +31,7 @@ public:
     float threshold;
     ofxCv::ContourFinder contourFinder;
     bool showLabels;
+    void motion_detect_4();
     void motion_detect_3();
     void motion_detect_2();
     void motion_detect_01();
