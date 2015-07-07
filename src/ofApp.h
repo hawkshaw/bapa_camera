@@ -97,6 +97,10 @@ public:
     //座標変換後の中心座標
     std::vector<signed int> newx;
     std::vector<signed int> newy;
+    
+    std::vector<signed int> newz;
+    std::vector<signed int> newspeed;
+    
     std::vector<signed int> newx_1f;
     std::vector<signed int> newy_1f;
     

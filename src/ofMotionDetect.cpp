@@ -78,11 +78,14 @@ void ofApp::motion_detect_4()
         newx.push_back(buf_x);
         newy.push_back(buf_y);
         
+        newz.push_back(buf_z);
+        newspeed.push_back(buf_speed);
+        
         msg = ofToString(buf_x)+":"+ofToString(buf_y)+":"+ofToString(buf_z);
-        m.addIntArg(buf_x);
-        m.addIntArg(buf_y);
-        m.addIntArg(buf_z);
-        m.addIntArg(buf_speed);
+//        m.addIntArg(buf_x);
+//        m.addIntArg(buf_y);
+//        m.addIntArg(buf_z);
+//        m.addIntArg(buf_speed);
         ofDrawBitmapString(msg, 10, 10);
         ofPopMatrix();
     }
@@ -170,6 +173,12 @@ void ofApp::motion_detect_4()
     }
     ofDrawBitmapString(msg2, 0, 60);
     for(int i = 0; i < velsx.size() ;i++){
+        
+        m.addIntArg(newx[i]);
+        m.addIntArg(newy[i]);
+        m.addIntArg(newz[i]);
+        m.addIntArg(newspeed[i]);
+        
         //平均からどれだけずれてるのか
         if(   ((velsx[i] <= -detectSpeedMin) && (velsx[i] >= -detectSpeedMax))
            || ((velsx[i] >= detectSpeedMin) && (velsx[i] <= detectSpeedMax))){
@@ -178,6 +187,9 @@ void ofApp::motion_detect_4()
             m.addIntArg(-1);
         }
     }
+    
+     sender.sendMessage(m);
+    
     //velsx_1f.resize(velsx.size());
     //velsy_1f.resize(velsy.size());
     //copy(velsx.begin(),velsx.end(),velsx_1f.begin());
@@ -196,13 +208,16 @@ void ofApp::motion_detect_4()
     velsid.clear();
     newx.clear();
     newy.clear();
+    
+    newz.clear();
+    newspeed.clear();
+    
     if(bClearLog){
         velsid_1f.clear();
         newx_1f.clear();
         newy_1f.clear();
         bClearLog=false;
     }
-    sender.sendMessage(m);
     //平均速度を送る
     ofxOscMessage m2;
     m2.setAddress("/mouse/position22");
