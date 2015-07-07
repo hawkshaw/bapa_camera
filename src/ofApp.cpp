@@ -42,7 +42,7 @@ void ofApp::setup() {
     contourFinder.setMaxAreaRadius(radMax);
     contourFinder.setThreshold(th);
     // wait for half a frame before forgetting something
-    contourFinder.getTracker().setPersistence(15);          //ここよくわからん
+    contourFinder.getTracker().setPersistence(15);          //見失っても覚えててくれるパラメータ
     // an object can move up to 100 pixels per frame
     contourFinder.getTracker().setMaximumDistance(100);     //横振りとるために増やしました
     
@@ -104,7 +104,7 @@ void ofApp::drawWaku(){
     int h;
     h = ofGetHeight();
     ofSetColor(255, 255, 0);
-    ofSetLineWidth(4);
+    ofSetLineWidth(3);
     areaTop= (h*detectAreaTop)>>8;
     areaTopL= (w*detectAreaTopL)>> 8;
     areaTopR= (w*detectAreaTopR)>> 8;
@@ -157,7 +157,7 @@ void ofApp::draw() {
                 const cv::Rect& previous = tracker.getPrevious(label);
                 const cv::Rect& current = tracker.getCurrent(label);
                 // get the centers of the rectangles
-                ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height / 2);
+                ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height/2);
                 ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
                 ofLine(previousPosition, currentPosition);
             }

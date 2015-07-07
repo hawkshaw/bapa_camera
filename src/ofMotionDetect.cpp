@@ -30,11 +30,12 @@ int MotionVoteYIir[MOTION_VOTE_BIN_NUM2];
 
 void ofApp::motion_detect_4()
 {
-    ofxOscMessage m;
-    m.setAddress("/mouse/position4");
     if((areaBottom <= areaTop)||(areaTopL >= areaTopR)||(areaBottomL>=areaBottomR)){
         return;
     }
+    
+    ofxOscMessage m;
+    m.setAddress("/mouse/position4");
     for(int i = 0; i < contourFinder.size(); i++) {
         ofPoint center = toOf(contourFinder.getCenter(i));
         ofPushMatrix();
