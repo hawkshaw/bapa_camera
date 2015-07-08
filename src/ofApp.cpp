@@ -51,6 +51,12 @@ void ofApp::setup() {
     radMax.addListener(this, &ofApp::valChanged);
     th.addListener(this, &ofApp::valChanged);
     histscale.addListener(this, &ofApp::valChanged);
+    detectAreaTop.addListener(this, &ofApp::areaChanged);
+    detectAreaTopL.addListener(this, &ofApp::areaChanged);
+    detectAreaTopR.addListener(this, &ofApp::areaChanged);
+    detectAreaBottom.addListener(this, &ofApp::areaChanged);
+    detectAreaBottomL.addListener(this, &ofApp::areaChanged);
+    detectAreaBottomR.addListener(this, &ofApp::areaChanged);
     
     showLabels = true;
     
@@ -60,11 +66,15 @@ void ofApp::setup() {
     bLearnBakground = true;
 }
 
+void ofApp::areaChanged(int &val){
+    bClearLog=true;
+}
+
 void ofApp::valChanged(int &val){
     contourFinder.setMinAreaRadius(radMin);
     contourFinder.setMaxAreaRadius(radMax);
     contourFinder.setThreshold(th);
-    }
+}
 
 
 void ofApp::update() {

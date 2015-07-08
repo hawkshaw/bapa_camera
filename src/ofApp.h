@@ -49,7 +49,7 @@ public:
     ofxCvGrayscaleImage 	grayImage;
     ofxCvGrayscaleImage 	grayBg;
     ofxCvGrayscaleImage 	grayDiff;
-    
+    void areaChanged(int &val);
     void valChanged(int &val);
     ofParameter<int>  radMin;
     ofParameter<int>  radMax;

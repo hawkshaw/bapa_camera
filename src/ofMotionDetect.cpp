@@ -38,8 +38,6 @@ void ofApp::motion_detect_4()
     m.setAddress("/mouse/position4");
     for(int i = 0; i < contourFinder.size(); i++) {
         ofPoint center = toOf(contourFinder.getCenter(i));
-        ofPushMatrix();
-        ofTranslate(center.x, center.y);
         int label = contourFinder.getLabel(i);
         ofVec2f velocity = toOf(contourFinder.getVelocity(i));
         if(((-MOTION_VOTE_BIN_NUM) <= velocity.x) && (velocity.x <= MOTION_VOTE_BIN_NUM)){
@@ -48,8 +46,8 @@ void ofApp::motion_detect_4()
                 MotionVoteY[int(velocity.y+MOTION_VOTE_BIN_NUM)]+= 1;
             }
         }
-        string msg = ofToString(label);
-        //ここから座標変換(10bit 1024)
+        
+        //ここから座標変換(10bit 1024)黄色い枠の中での座標を考える
         int buf_y,buf_x;//10bit
         int buf_z = 0;
         buf_y = (((int)(center.y-areaTop))<<10)/(areaBottom-areaTop);
@@ -62,6 +60,7 @@ void ofApp::motion_detect_4()
         buf_x = (((int)(center.x-buf_xL))<<10)/(buf_xR-buf_xL);
         //msg = ofToString(buf_x)+":"+ofToString(buf_y);
         //ここまで座標変換
+        
         for(int j=0;j<newx_1f.size();j++){
             if(label==velsid_1f[j]){
                 buf_z=newy_1f[j]-buf_y;
@@ -74,20 +73,18 @@ void ofApp::motion_detect_4()
         velsy.push_back(velocity.y);
         int buf_speed;
         buf_speed = velocity.x*velocity.x+velocity.y*velocity.y;
-        
+        centersx.push_back(center.x);
+        centersy.push_back(center.y);
         newx.push_back(buf_x);
         newy.push_back(buf_y);
         
         newz.push_back(buf_z);
         newspeed.push_back(buf_speed);
         
-        msg = ofToString(buf_x)+":"+ofToString(buf_y)+":"+ofToString(buf_z);
 //        m.addIntArg(buf_x);
 //        m.addIntArg(buf_y);
 //        m.addIntArg(buf_z);
 //        m.addIntArg(buf_speed);
-        ofDrawBitmapString(msg, 10, 10);
-        ofPopMatrix();
     }
     //最も多い動きを計算
     for(int i=0; i<MOTION_VOTE_BIN_NUM2;i++){
@@ -173,7 +170,11 @@ void ofApp::motion_detect_4()
     }
     ofDrawBitmapString(msg2, 0, 60);
     for(int i = 0; i < velsx.size() ;i++){
-        
+        //座標変換後の座標(newx,newy)が(0,0)->(1024,1024)の中に入っていなければOSCで送らない
+        if(newx[i]<0)continue;
+        if(newx[i]>1024)continue;
+        if(newy[i]<0)continue;
+        if(newy[i]>1024)continue;
         m.addIntArg(newx[i]);
         m.addIntArg(newy[i]);
         m.addIntArg(newz[i]);
@@ -182,8 +183,12 @@ void ofApp::motion_detect_4()
         //平均からどれだけずれてるのか
         if(   ((velsx[i] <= -detectSpeedMin) && (velsx[i] >= -detectSpeedMax))
            || ((velsx[i] >= detectSpeedMin) && (velsx[i] <= detectSpeedMax))){
+            //スピードが閾値に入ってる時
             m.addIntArg( (velsx[i]-Vx)*(velsx[i]-Vx) + (velsy[i]-Vy)*(velsy[i]-Vy) );
+            string msg = ofToString(newx[i])+":"+ofToString(newy[i])+":"+ofToString(newz[i]);
+            ofDrawBitmapString(msg, centersx[i]+10, centersy[i]+10);
         }else{
+            //スピードが範囲に入ってない時
             m.addIntArg(-1);
         }
     }
@@ -211,6 +216,8 @@ void ofApp::motion_detect_4()
     
     newz.clear();
     newspeed.clear();
+    centersx.clear();
+    centersy.clear();
     
     if(bClearLog){
         velsid_1f.clear();
