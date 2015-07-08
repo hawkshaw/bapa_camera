@@ -11,9 +11,11 @@ void ofApp::setup() {
     
 #ifdef _USE_LIVE_VIDEO
     //vidGrabber.setVerbose(true);
+    vidGrabber.setDeviceID(0);
     vidGrabber.initGrabber(1280,720);
 #else
     movie.loadMovie("video2.mov");
+    movie.setVolume(0.0);
     movie.play();
 #endif
     
@@ -21,7 +23,6 @@ void ofApp::setup() {
     grayImage.allocate(1280,720);
     grayBg.allocate(1280,720);
     grayDiff.allocate(1280,720);
-    _threshold = 200;
     
     gui.setup("panel");
     gui.add(radMin.set("radMin", 1,1,10));
@@ -88,6 +89,9 @@ void ofApp::update() {
         grayImage.threshold(_th);
         contourFinder.findContours(grayImage);
         
+        //2値化しないで検出
+        //contourFinder.findContours(colorImg);
+        
     }
 #else
     movie.update();
@@ -146,22 +150,22 @@ void ofApp::draw() {
         }
         drawWaku();
     } else {                                             //トラッキングの軌跡(スペースで切り替え)
-        for(int i = 0; i < contourFinder.size(); i++) {
-            unsigned int label = contourFinder.getLabel(i);
-            // only draw a line if this is not a new label
-            if(tracker.existsPrevious(label)) {
-                // use the label to pick a random color
-                ofSeedRandom(label << 24);
-                ofSetColor(ofColor::fromHsb(ofRandom(255), 255, 255));
-                // get the tracked object (cv::Rect) at current and previous position
-                const cv::Rect& previous = tracker.getPrevious(label);
-                const cv::Rect& current = tracker.getCurrent(label);
-                // get the centers of the rectangles
-                ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height/2);
-                ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
-                ofLine(previousPosition, currentPosition);
-            }
-        }
+//        for(int i = 0; i < contourFinder.size(); i++) {
+//            unsigned int label = contourFinder.getLabel(i);
+//            // only draw a line if this is not a new label
+//            if(tracker.existsPrevious(label)) {
+//                // use the label to pick a random color
+//                ofSeedRandom(label << 24);
+//                ofSetColor(ofColor::fromHsb(ofRandom(255), 255, 255));
+//                // get the tracked object (cv::Rect) at current and previous position
+//                const cv::Rect& previous = tracker.getPrevious(label);
+//                const cv::Rect& current = tracker.getCurrent(label);
+//                // get the centers of the rectangles
+//                ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height/2);
+//                ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
+//                ofLine(previousPosition, currentPosition);
+//            }
+//        }
     }
 }
 
@@ -173,19 +177,11 @@ void ofApp::keyPressed(int key) {
     if(key == 'c') {
         bClearLog=true;
     }
-    if(key == 's') {
+    if(key == 's') {                        //guiのパラメータをxmlでsave
         gui.saveToFile("settings.xml");
     }
     if(key == 'l') {
         gui.loadFromFile("settings.xml");
     }
 
-//    if(key == '+'){
-//        _threshold ++;
-//        if (_threshold > 255) _threshold = 255;
-//    }
-//    if(key == '-'){
-//        _threshold --;
-//        if (_threshold < 0) _threshold = 0;
-//    }
 }

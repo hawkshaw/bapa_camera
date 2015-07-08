@@ -11,7 +11,7 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>8EB4851A76F08E3DAB9F230421DB47C45BC4EE4B</key>
-		<string>http://github.com/hawkshaw/bapa_camera.git</string>
+		<string>https://github.com/hawkshaw/bapa_camera.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>IRtrackingWithOSC.xcodeproj</string>
@@ -21,7 +21,7 @@
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>http://github.com/hawkshaw/bapa_camera.git</string>
+	<string>https://github.com/hawkshaw/bapa_camera.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
@@ -34,7 +34,7 @@
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>8EB4851A76F08E3DAB9F230421DB47C45BC4EE4B</string>
 			<key>IDESourceControlWCCName</key>
-			<string>IRtrackingWithOSC</string>
+			<string>bapa_camera</string>
 		</dict>
 	</array>
 </dict>

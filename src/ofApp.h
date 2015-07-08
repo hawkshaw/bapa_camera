@@ -49,7 +49,6 @@ public:
     ofxCvGrayscaleImage 	grayImage;
     ofxCvGrayscaleImage 	grayBg;
     ofxCvGrayscaleImage 	grayDiff;
-    int _threshold;
     
     void valChanged(int &val);
     ofParameter<int>  radMin;
@@ -68,7 +67,6 @@ public:
     ofParameter<int>  detectAreaBottomR;
     ofParameter<int>  detectAreaBottomL;
     int areaTop,areaBottom,areaTopR,areaTopL,areaBottomR,areaBottomL;
-    
     
     ofxPanel gui;
     
